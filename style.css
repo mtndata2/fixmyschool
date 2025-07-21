@@ -1,0 +1,40 @@
+body {
+  font-family: sans-serif;
+  background-color: #f5f7fa;
+  padding: 1rem;
+}
+
+header, footer {
+  text-align: center;
+  padding: 1rem;
+  background: #1b5e20;
+  color: white;
+}
+
+main {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+form label {
+  display: block;
+  margin-top: 1rem;
+}
+
+form input, form select, form button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+form button {
+  background: #1b5e20;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 1.5rem;
+}
