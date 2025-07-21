@@ -1,41 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>FixMySchool Admin</title>
-  <style>
-    body { font-family: sans-serif; padding: 1rem; background: #f8f8f8; }
-    .card { background: #fff; margin: 1rem 0; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
-    img { max-width: 200px; display: block; margin-bottom: 0.5rem; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FixMySchool – Admin Panel</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>📊 FixMySchool Reports</h1>
-  <div id="reportList">Loading...</div>
+  <h1>FixMySchool Admin Panel</h1>
+  <p>Approve or reject user-submitted reports below.</p>
+
+  <section id="admin-list"></section>
 
   <script>
     async function loadReports() {
       const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
       const data = await res.json();
-      const list = document.getElementById('reportList');
+      const list = document.getElementById('admin-list');
       list.innerHTML = '';
 
-      data.reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      data.reports.forEach(report => {
+        const key = report.photoUrl?.split('/').slice(-2).join('/').replace('.jpg', '') + '/report.json';
 
-      for (const report of data.reports) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <strong>${report.school}</strong> - ${report.location}<br/>
-          Issue: ${report.issue}<br/>
-          Date: ${new Date(report.timestamp).toLocaleString()}<br/>
-          ${report.photoUrl ? `<img src="${report.photoUrl}" alt="photo" />` : ''}
-          ${report.videoUrl ? `<a href="${report.videoUrl}" target="_blank">📹 Video</a>` : ''}
+        const div = document.createElement('div');
+        div.className = 'admin-card';
+        div.innerHTML = `
+          <h3>${report.school} – ${report.location}</h3>
+          <p><strong>Issue:</strong> ${report.issue}</p>
+          <p><strong>Date:</strong> ${new Date(report.timestamp).toLocaleString()}</p>
+          ${report.photoUrl ? `<img src="${report.photoUrl}" alt="photo" width="300">` : ''}
+          ${report.videoUrl ? `<p><a href="${report.videoUrl}" target="_blank">View Video</a></p>` : ''}
+          <p>Status: <strong>${report.approved ? '✅ Approved' : '⏳ Pending'}</strong></p>
+          <button onclick="moderate('${key}', 'approve')">✅ Approve</button>
+          <button onclick="moderate('${key}', 'reject')">❌ Reject</button>
+          <hr/>
         `;
-        list.appendChild(card);
-      }
+        list.appendChild(div);
+      });
+    }
+
+    async function moderate(key, action) {
+      await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, action })
+      });
+      alert(`Report ${action}d`);
+      loadReports();
     }
 
     loadReports();
   </script>
 </body>
 </html>
+
