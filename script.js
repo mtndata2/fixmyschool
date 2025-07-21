@@ -24,7 +24,7 @@ document.getElementById('reportForm').addEventListener('submit', async function 
   }
 
   try {
-    const response = await fetch('https://your-worker-url.workers.dev/report', {
+    const response = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/', {
       method: 'POST',
       body: formData
     });
