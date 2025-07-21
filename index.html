@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FixMySchool - Report a Problem</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>FixMySchool</h1>
+    <p>Report broken school infrastructure anonymously</p>
+  </header>
+
+  <main>
+    <form id="reportForm" enctype="multipart/form-data">
+      <label>School Name:</label>
+      <input type="text" name="school" required />
+
+      <label>Location (Town, State):</label>
+      <input type="text" name="location" required />
+
+      <label>Issue Type:</label>
+      <select name="issue" required>
+        <option value="">-- Select an issue --</option>
+        <option>Broken Toilet</option>
+        <option>Leaking Roof</option>
+        <option>No Furniture</option>
+        <option>Flooded Classroom</option>
+        <option>No Chalkboard</option>
+        <option>Other</option>
+      </select>
+
+      <label>Photo Upload (Max 2MB):</label>
+      <input type="file" name="photo" accept="image/*" required />
+
+      <label>Video (Optional, Max 20MB):</label>
+      <input type="file" name="video" accept="video/*" />
+
+      <button type="submit">Submit Report</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FixMySchool</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
