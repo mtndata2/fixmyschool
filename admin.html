@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FixMySchool Admin</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; background: #f8f8f8; }
+    .card { background: #fff; margin: 1rem 0; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
+    img { max-width: 200px; display: block; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>📊 FixMySchool Reports</h1>
+  <div id="reportList">Loading...</div>
+
+  <script>
+    async function loadReports() {
+      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
+      const data = await res.json();
+      const list = document.getElementById('reportList');
+      list.innerHTML = '';
+
+      data.reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      for (const report of data.reports) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>${report.school}</strong> - ${report.location}<br/>
+          Issue: ${report.issue}<br/>
+          Date: ${new Date(report.timestamp).toLocaleString()}<br/>
+          ${report.photoUrl ? `<img src="${report.photoUrl}" alt="photo" />` : ''}
+          ${report.videoUrl ? `<a href="${report.videoUrl}" target="_blank">📹 Video</a>` : ''}
+        `;
+        list.appendChild(card);
+      }
+    }
+
+    loadReports();
+  </script>
+</body>
+</html>
