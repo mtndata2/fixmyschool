@@ -1,40 +1,34 @@
 body {
   font-family: sans-serif;
-  background-color: #f5f7fa;
-  padding: 1rem;
-}
-
-header, footer {
-  text-align: center;
-  padding: 1rem;
-  background: #1b5e20;
-  color: white;
-}
-
-main {
-  max-width: 600px;
+  max-width: 800px;
   margin: auto;
+  padding: 20px;
+  background: #f7f9fc;
+}
+
+img {
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.report-card, .admin-card {
   background: white;
-  padding: 2rem;
+  border: 1px solid #ddd;
+  padding: 15px;
   border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-form label {
-  display: block;
-  margin-top: 1rem;
-}
-
-form input, form select, form button {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  font-size: 1rem;
-}
-
-form button {
-  background: #1b5e20;
-  color: white;
+button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
   border: none;
   cursor: pointer;
-  margin-top: 1.5rem;
 }
+
+button:hover {
+  background: #eef;
+}
+
