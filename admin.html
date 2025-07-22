@@ -1,26 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin – Moderate Reports</title>
-  <link rel="stylesheet" href="/style.css" />
+  <meta charset="UTF-8">
+  <title>Admin - Moderate Reports</title>
 </head>
 <body>
-  <header>
-    <h1>FixMySchool – Admin Panel</h1>
-  </header>
-
-  <main>
-    <section>
-      <h2>Pending Reports</h2>
-      <div id="report-list">Loading reports...</div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 FixMySchool</p>
-  </footer>
+  <h1>Pending Reports for Approval</h1>
+  <div id="report-list">Loading reports...</div>
 
   <script>
     async function fetchReports() {
@@ -36,25 +22,20 @@
 
       data.reports.forEach(report => {
         const card = document.createElement('div');
-        card.className = 'report-card';
-
-        const imgTag = report.photoUrls && report.photoUrls.length > 0
-          ? `<img src="${report.photoUrls[0]}" alt="Report photo" class="thumb" />`
-          : '';
+        card.style.border = "1px solid #ccc";
+        card.style.padding = "10px";
+        card.style.marginBottom = "10px";
 
         card.innerHTML = `
-          <h3>${report.school}</h3>
-          <p><strong>Location:</strong> ${report.location}</p>
-          <p><strong>Issue:</strong> ${report.issue}</p>
-          <p><strong>Status:</strong> <span class="status">${report.status || 'pending'}</span></p>
-          ${imgTag}
-          <div class="actions">
-            <button onclick="moderate('${report.key}', 'approved')">✅ Approve</button>
-            <button onclick="moderate('${report.key}', 'rejected')">🚫 Reject</button>
-            <button onclick="deleteReport('${report.key}')">🗑️ Delete</button>
-          </div>
+          <strong>${report.school}</strong> - ${report.location}<br>
+          <em>${report.issue}</em><br>
+          Status: <strong>${report.status || 'pending'}</strong><br>
+          ${report.photoUrls && report.photoUrls.length > 0 ? `<img src="${report.photoUrls[0]}" width="100">` : ''}
+          <br>
+          <button onclick="moderate('${report.key}', 'approved')">Approve</button>
+          <button onclick="moderate('${report.key}', 'rejected')">Reject</button>
+          <button onclick="deleteReport('${report.key}')">Delete</button>
         `;
-
         container.appendChild(card);
       });
     }
@@ -66,36 +47,38 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key, status })
         });
+
         const result = await res.json();
         if (result.success) {
-          alert(`Report marked as ${status}`);
+          alert(`Report ${status}`);
           fetchReports();
         } else {
-          alert("Moderation failed.");
+          alert("Error moderating report.");
         }
       } catch (err) {
         alert("Error moderating report.");
+        console.error(err);
       }
     }
 
     async function deleteReport(key) {
-      if (!confirm("Are you sure you want to delete this report and all media?")) return;
-
       try {
         const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key })
         });
+
         const result = await res.json();
         if (result.success) {
-          alert("Report deleted successfully.");
+          alert("Report deleted");
           fetchReports();
         } else {
-          alert("Failed to delete report.");
+          alert("Error deleting report.");
         }
       } catch (err) {
         alert("Error deleting report.");
+        console.error(err);
       }
     }
 
@@ -103,4 +86,3 @@
   </script>
 </body>
 </html>
-
