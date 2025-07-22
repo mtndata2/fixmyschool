@@ -7,41 +7,54 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Submit a School Infrastructure Report</h1>
-  <p>Please upload 5–10 photos, an optional video, and describe the issue clearly.</p>
 
-  <form id="reportForm" enctype="multipart/form-data">
-    <label>School Name:</label><br>
-    <input type="text" name="school" required><br><br>
+  <div class="top-bar">
+    <div>📸 <strong>FixMySchool</strong></div>
+    <div>
+      <a href="/">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
 
-    <label>Location:</label><br>
-    <input type="text" name="location" required><br><br>
+  <div class="content-wrapper">
+    <h2>Submit a School Infrastructure Report</h2>
+    <p>Please upload <strong>5–10 photos</strong>, an optional video, and provide a short description of the problem.</p>
 
-    <label>Issue Description:</label><br>
-    <textarea name="issue" rows="5" required></textarea><br><br>
+    <form id="reportForm" enctype="multipart/form-data">
+      <label>School Name:</label><br>
+      <input type="text" name="school" required><br><br>
 
-    <label>Upload Photos (5–10):</label><br>
-    <input type="file" name="photos" id="photos" accept="image/*" multiple required><br><br>
+      <label>Location (State or LGA):</label><br>
+      <input type="text" name="location" required><br><br>
 
-    <label>Upload Video (optional):</label><br>
-    <input type="file" name="video" accept="video/*"><br><br>
+      <label>Issue Description:</label><br>
+      <textarea name="issue" rows="5" required></textarea><br><br>
 
-    <button type="submit">Submit Report</button>
-  </form>
+      <label>Upload Photos (5–10):</label><br>
+      <input type="file" name="photos" id="photos" accept="image/*" multiple required><br><br>
+
+      <label>Upload Video (optional):</label><br>
+      <input type="file" name="video" accept="video/*"><br><br>
+
+      <button type="submit">Submit Report</button>
+    </form>
+  </div>
 
   <script>
     document.getElementById('reportForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
+      const form = e.target;
       const photos = document.getElementById('photos').files;
       if (photos.length < 5 || photos.length > 10) {
         alert("Please upload between 5 and 10 photos.");
         return;
       }
 
-      const formData = new FormData(this);
+      const formData = new FormData(form);
       for (let i = 0; i < photos.length; i++) {
-        formData.append("photo" + i, photos[i]); // name each photo separately
+        formData.append("photo" + i, photos[i]); // Add photo0, photo1...
       }
 
       const response = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/", {
@@ -54,9 +67,11 @@
         alert("Report submitted successfully!");
         window.location.href = "/thank-you.html";
       } else {
-        alert("There was an error submitting the report.");
+        alert("There was an error: " + result.message || "Unable to submit");
       }
     });
   </script>
+
 </body>
 </html>
+
