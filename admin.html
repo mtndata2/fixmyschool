@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Admin - Moderate Reports</title>
 </head>
 <body>
@@ -29,11 +29,11 @@
         card.innerHTML = `
           <strong>${report.school}</strong> - ${report.location}<br>
           <em>${report.issue}</em><br>
-          Status: <strong>${report.status}</strong><br>
+          Status: <strong>${report.status || 'pending'}</strong><br>
           ${report.photoUrls && report.photoUrls.length > 0 ? `<img src="${report.photoUrls[0]}" width="100">` : ''}
           <br>
-          <button type="button" onclick="moderate('${report.key}', 'approved')">Approve</button>
-          <button type="button" onclick="moderate('${report.key}', 'rejected')">Reject</button>
+          <button onclick="moderate('${report.key}', 'approved')">Approve</button>
+          <button onclick="moderate('${report.key}', 'rejected')">Reject</button>
         `;
         container.appendChild(card);
       });
@@ -43,20 +43,22 @@
       try {
         const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({ key, status })
         });
+
         const result = await res.json();
         if (result.success) {
-          alert(`Report ${status}`);
-          fetchReports(); // reload
+          alert(`Report marked as ${status}`);
+          fetchReports();
         } else {
           alert("Moderation failed.");
-          console.error(result);
         }
       } catch (err) {
-        alert("Error moderating report.");
         console.error(err);
+        alert("Error moderating report.");
       }
     }
 
