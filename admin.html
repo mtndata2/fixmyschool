@@ -1,79 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Panel - FixMySchool</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/style.css" />
+  <meta charset="UTF-8">
+  <title>Admin - Moderate Reports</title>
 </head>
 <body>
-  <header>
-    <h1>Admin Panel</h1>
-    <p>Approve or Reject Submitted Reports</p>
-  </header>
-
-  <main id="report-list" class="report-container"></main>
+  <h1>Pending Reports for Approval</h1>
+  <div id="report-list">Loading reports...</div>
 
   <script>
-    async function loadReports() {
-      try {
-        const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
-        const data = await res.json();
-        const container = document.getElementById('report-list');
+    async function fetchReports() {
+      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
+      const data = await res.json();
+      const container = document.getElementById('report-list');
+      container.innerHTML = '';
 
-        if (!data.reports || data.reports.length === 0) {
-          container.innerHTML = "<p>No reports found.</p>";
-          return;
-        }
-
-        for (const report of data.reports) {
-          const card = document.createElement('div');
-          card.className = 'report-card';
-
-          const date = new Date(report.timestamp).toLocaleString();
-
-          card.innerHTML = `
-            <h3>${report.school} - ${report.location}</h3>
-            <p><strong>Issue:</strong> ${report.issue}</p>
-            <p><strong>Date:</strong> ${date}</p>
-            <div class="photo-preview">
-              ${report.photoUrls.map(url => `<img src="${url}" alt="photo" loading="lazy"/>`).join('')}
-            </div>
-            ${report.videoUrl ? `<video controls src="${report.videoUrl}" width="300"></video>` : ""}
-            <div class="actions">
-              <button onclick="moderate('${report.key}', 'approved')">Approve</button>
-              <button onclick="moderate('${report.key}', 'rejected')">Reject</button>
-            </div>
-            <p class="status">Current status: <strong>${report.status || 'pending'}</strong></p>
-          `;
-
-          container.appendChild(card);
-        }
-      } catch (err) {
-        console.error("Error loading reports:", err);
-        document.getElementById('report-list').innerHTML = "<p>Error loading reports.</p>";
+      if (!data.reports.length) {
+        container.innerHTML = "<p>No reports found.</p>";
+        return;
       }
+
+      data.reports.forEach(report => {
+        const card = document.createElement('div');
+        card.style.border = "1px solid #ccc";
+        card.style.padding = "10px";
+        card.style.marginBottom = "10px";
+
+        card.innerHTML = `
+          <strong>${report.school}</strong> - ${report.location}<br>
+          <em>${report.issue}</em><br>
+          Status: <strong>${report.status}</strong><br>
+          ${report.photoUrls && report.photoUrls.length > 0 ? `<img src="${report.photoUrls[0]}" width="100">` : ''}
+          <br>
+          <button onclick="moderate('${report.key}', 'approved')">Approve</button>
+          <button onclick="moderate('${report.key}', 'rejected')">Reject</button>
+        `;
+        container.appendChild(card);
+      });
     }
 
     async function moderate(key, status) {
-      const confirmAction = confirm(`Are you sure you want to mark this as ${status}?`);
-      if (!confirmAction) return;
-
-      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
+      await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, status })
       });
-
-      if (res.ok) {
-        alert('Updated successfully');
-        location.reload();
-      } else {
-        alert('Failed to update');
-      }
+      fetchReports(); // reload
     }
 
-    loadReports();
+    fetchReports();
   </script>
 </body>
 </html>
