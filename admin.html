@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html>
 <head>
   <meta charset="UTF-8">
@@ -40,12 +40,18 @@
     }
 
     async function moderate(key, status) {
-      await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
+      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, status })
       });
-      fetchReports(); // reload
+      const result = await res.json();
+      if (result.success) {
+        alert(`Report ${status}`);
+        fetchReports(); // reload
+      } else {
+        alert("Moderation failed.");
+      }
     }
 
     fetchReports();
