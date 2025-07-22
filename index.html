@@ -1,100 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>FixMySchool – Report Broken Infrastructure</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/style.css" />
+  <meta charset="UTF-8">
+  <title>FixMySchool - Reported Cases</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; background: #f5f5f5; }
+    h1 { text-align: center; }
+    .report-date-group { margin-bottom: 2rem; }
+    .scroll-gallery {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding-bottom: 1rem;
+    }
+    .report-card {
+      flex: 0 0 auto;
+      width: 200px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1rem;
+    }
+    .report-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+    }
+    .text-small { font-size: 0.9em; color: #666; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>FixMySchool</h1>
-    <p>Highlight and report poor school infrastructure</p>
-    <nav>
-      <a href="/report.html">Submit a Report</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="gallery">
-      <h2>Recent Approved Reports</h2>
-      <div id="reportContainer">Loading reports...</div>
-    </section>
-  </main>
-
-  <footer>
-    <nav>
-      <a href="/about.html">About</a> |
-      <a href="/contact.html">Contact</a> |
-      <a href="/privacy.html">Privacy Policy</a>
-    </nav>
-    <p>&copy; 2025 FixMySchool</p>
-  </footer>
+  <h1>Approved School Reports</h1>
+  <div id="gallery"></div>
 
   <script>
     async function loadReports() {
-      const container = document.getElementById("reportContainer");
-      try {
-        const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/reports");
-        const data = await res.json();
-        const reports = data.reports;
+      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/reports');
+      const { reports } = await res.json();
 
-        if (!reports.length) {
-          container.innerHTML = "<p>No approved reports yet.</p>";
-          return;
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+
+      const grouped = {};
+
+      // Group reports by date
+      for (const report of reports) {
+        const date = new Date(report.timestamp).toLocaleDateString();
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(report);
+      }
+
+      for (const [date, items] of Object.entries(grouped)) {
+        const group = document.createElement('div');
+        group.className = 'report-date-group';
+
+        const header = document.createElement('h3');
+        header.textContent = date;
+        group.appendChild(header);
+
+        const scroll = document.createElement('div');
+        scroll.className = 'scroll-gallery';
+
+        for (const report of items) {
+          const card = document.createElement('div');
+          card.className = 'report-card';
+
+          const html = `
+            <div><strong>${report.school}</strong></div>
+            <div class="text-small">${report.location}</div>
+            <div class="text-small"><em>${report.issue}</em></div>
+            ${report.photoUrls && report.photoUrls.length > 0 ? `<img src="${report.photoUrls[0]}" loading="lazy" alt="Report photo">` : ''}
+          `;
+          card.innerHTML = html;
+          scroll.appendChild(card);
         }
 
-        // Group reports by date
-        const grouped = {};
-        for (const r of reports) {
-          const date = new Date(r.timestamp).toDateString();
-          if (!grouped[date]) grouped[date] = [];
-          grouped[date].push(r);
-        }
-
-        container.innerHTML = "";
-
-        for (const [date, entries] of Object.entries(grouped)) {
-          const group = document.createElement("div");
-          group.className = "report-group";
-          const heading = document.createElement("h3");
-          heading.textContent = date;
-          group.appendChild(heading);
-
-          const scrollArea = document.createElement("div");
-          scrollArea.className = "scroll-row";
-
-          entries.forEach(entry => {
-            const box = document.createElement("div");
-            box.className = "report-box";
-
-            const img = document.createElement("img");
-            img.src = entry.photoUrls?.[0] || "";
-            img.alt = entry.school;
-
-            const info = document.createElement("div");
-            info.innerHTML = `
-              <strong>${entry.school}</strong><br />
-              ${entry.location}<br />
-              <small>${entry.issue}</small>
-            `;
-
-            box.appendChild(img);
-            box.appendChild(info);
-            scrollArea.appendChild(box);
-          });
-
-          group.appendChild(scrollArea);
-          container.appendChild(group);
-        }
-
-      } catch (err) {
-        container.innerHTML = "<p>Error loading reports. Try again later.</p>";
-        console.error(err);
+        group.appendChild(scroll);
+        gallery.appendChild(group);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", loadReports);
+    loadReports();
   </script>
 </body>
 </html>
