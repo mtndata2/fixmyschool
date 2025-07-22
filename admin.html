@@ -1,45 +1,60 @@
-<script>
-async function loadReports() {
-  const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/admin");
-  const { reports } = await res.json();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixMySchool Admin</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <div id="admin-list" class="admin-list"></div>
 
-  const container = document.getElementById("admin-list");
-  container.innerHTML = "";
+  <script>
+    async function loadReports() {
+      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/admin");
+      const { reports } = await res.json();
+      const container = document.getElementById("admin-list");
+      container.innerHTML = "";
 
-  reports.forEach((r, index) => {
-    const item = document.createElement("div");
-    item.className = "admin-card";
-    item.innerHTML = `
-      <p><strong>${r.school}</strong> - ${r.location}</p>
-      <p>Issue: ${r.issue}</p>
-      <p>Date: ${new Date(r.timestamp).toLocaleString()}</p>
-      ${r.photoUrl ? `<img src="${r.photoUrl}" width="200"/>` : ""}
-      <br>
-      <button onclick="moderate('${r.key}', 'approved')">✅ Approve</button>
-      <button onclick="moderate('${r.key}', 'rejected')">❌ Reject</button>
-      <hr>
-    `;
-    container.appendChild(item);
-  });
-}
+      reports.forEach((r) => {
+        const item = document.createElement("div");
+        item.className = "admin-card";
+        item.innerHTML = `
+          <h3>${r.school}</h3>
+          <p><strong>Location:</strong> ${r.location}</p>
+          <p><strong>Issue:</strong> ${r.issue}</p>
+          <p><strong>Status:</strong> ${r.status}</p>
+          <p><strong>Date:</strong> ${new Date(r.timestamp).toLocaleString()}</p>
+          <div class="thumbs">${r.photoUrls.map(p => `<img src="${p}" width="100" />`).join('')}</div>
+          ${r.videoUrl ? `<video controls width="300"><source src="${r.videoUrl}" type="video/mp4"></video>` : ''}
+          <br />
+          <button onclick="moderate('${r.key}', 'approved')">✅ Approve</button>
+          <button onclick="moderate('${r.key}', 'rejected')">❌ Reject</button>
+          <hr />
+        `;
+        container.appendChild(item);
+      });
+    }
 
-async function moderate(key, status) {
-  const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/moderate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key, status })
-  });
+    async function moderate(key, status) {
+      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, status })
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert(`${status.toUpperCase()} ✅`);
+        loadReports();
+      } else {
+        alert("Failed to moderate");
+      }
+    }
 
-  const result = await res.json();
-  if (result.success) {
-    alert(`${status.toUpperCase()} ✅`);
-    loadReports();
-  } else {
-    alert("Failed to moderate");
-  }
-}
-
-window.onload = loadReports;
-</script>
+    window.onload = loadReports;
+  </script>
+</body>
+</html>
 
 
