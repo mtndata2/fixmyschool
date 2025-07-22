@@ -3,32 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FixMySchool – Reported Issues</title>
+  <title>FixMySchool – Reported Infrastructure Issues</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>FixMySchool</h1>
-  <p>Below are community-reported school infrastructure issues that have been approved.</p>
 
-  <section id="gallery"></section>
+  <div class="top-bar">
+    <div>📸 <strong>FixMySchool</strong></div>
+    <div>
+      <a href="/report.html">Submit a Report</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <h2>Approved School Infrastructure Issues</h2>
+    <p>Below are recent reports approved by moderators, grouped by date:</p>
+
+    <div id="gallery-container"></div>
+  </div>
 
   <script>
+    function formatDateGroup(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
     fetch('https://fixmyschool-api.mtndatasales.workers.dev/reports')
       .then(res => res.json())
       .then(data => {
-        const gallery = document.getElementById('gallery');
+        const container = document.getElementById('gallery-container');
+        const grouped = {};
+
         data.reports.forEach(report => {
-          const div = document.createElement('div');
-          div.className = 'report-card';
-          div.innerHTML = `
-            <h3>${report.school} – ${report.location}</h3>
-            <p><strong>Issue:</strong> ${report.issue}</p>
-            <p><strong>Date:</strong> ${new Date(report.timestamp).toLocaleString()}</p>
-            ${report.photoUrl ? `<img src="${report.photoUrl}" alt="photo" width="300">` : ''}
-            ${report.videoUrl ? `<p><a href="${report.videoUrl}" target="_blank">View Video</a></p>` : ''}
-            <hr/>
-          `;
-          gallery.appendChild(div);
+          const dateKey = formatDateGroup(report.timestamp);
+          if (!grouped[dateKey]) grouped[dateKey] = [];
+          grouped[dateKey].push(report);
+        });
+
+        Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+          const section = document.createElement('div');
+          section.className = 'date-section';
+
+          const heading = document.createElement('div');
+          heading.className = 'date-heading';
+          heading.textContent = date;
+          section.appendChild(heading);
+
+          const row = document.createElement('div');
+          row.className = 'gallery-row';
+
+          grouped[date].forEach(report => {
+            const div = document.createElement('div');
+            div.className = 'gallery-card';
+
+            const imageUrl = report.photoUrls[0] || '';
+            const slug = encodeURIComponent(report.id.replace('/report.json', ''));
+
+            div.innerHTML = `
+              <a href="/entry/${slug}.html">
+                <img src="${imageUrl}" alt="Preview">
+              </a>
+              <p><strong>${report.school}</strong><br>
+              ${report.location}<br>
+              <em>${report.issue}</em></p>
+            `;
+            row.appendChild(div);
+          });
+
+          section.appendChild(row);
+          container.appendChild(section);
         });
       });
   </script>
