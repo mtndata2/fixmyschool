@@ -1,87 +1,68 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FixMySchool – Reported Infrastructure Issues</title>
-  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixMySchool – Home</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-
-  <div class="top-bar">
-    <div>📸 <strong>FixMySchool</strong></div>
-    <div>
-      <a href="/report.html">Submit a Report</a>
+  <header>
+    <h1>FixMySchool</h1>
+    <nav>
+      <a href="/report.html">Report an Issue</a>
       <a href="/about.html">About</a>
       <a href="/contact.html">Contact</a>
-    </div>
-  </div>
+      <a href="/privacy.html">Privacy Policy</a>
+    </nav>
+  </header>
 
-  <div class="content-wrapper">
-    <h2>Approved School Infrastructure Issues</h2>
-    <p>Below are recent reports approved by moderators, grouped by date:</p>
-
-    <div id="gallery-container"></div>
-  </div>
+  <main>
+    <h2>Approved Reports Gallery</h2>
+    <div id="gallery"></div>
+  </main>
 
   <script>
-    function formatDateGroup(iso) {
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+    async function loadReports() {
+      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/reports");
+      const { reports } = await res.json();
+      const grouped = {};
+
+      reports.forEach(report => {
+        const date = new Date(report.timestamp).toLocaleDateString();
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(report);
       });
+
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      for (const date in grouped) {
+        const section = document.createElement("section");
+        section.innerHTML = `<h3>${date}</h3>`;
+        const scroll = document.createElement("div");
+        scroll.className = "scroll-row";
+
+        grouped[date].forEach(r => {
+          const card = document.createElement("div");
+          card.className = "report-card";
+          card.innerHTML = `
+            <a href="/view.html?id=${encodeURIComponent(r.id)}">
+              <img src="${r.photoUrls[0]}" width="180" />
+              <p><strong>${r.school}</strong><br/>${r.location}</p>
+            </a>
+          `;
+          scroll.appendChild(card);
+        });
+
+        section.appendChild(scroll);
+        gallery.appendChild(section);
+      }
     }
 
-    fetch('https://fixmyschool-api.mtndatasales.workers.dev/reports')
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById('gallery-container');
-        const grouped = {};
-
-        data.reports.forEach(report => {
-          const dateKey = formatDateGroup(report.timestamp);
-          if (!grouped[dateKey]) grouped[dateKey] = [];
-          grouped[dateKey].push(report);
-        });
-
-        Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
-          const section = document.createElement('div');
-          section.className = 'date-section';
-
-          const heading = document.createElement('div');
-          heading.className = 'date-heading';
-          heading.textContent = date;
-          section.appendChild(heading);
-
-          const row = document.createElement('div');
-          row.className = 'gallery-row';
-
-          grouped[date].forEach(report => {
-            const div = document.createElement('div');
-            div.className = 'gallery-card';
-
-            const imageUrl = report.photoUrls[0] || '';
-            const slug = encodeURIComponent(report.id.replace('/report.json', ''));
-
-            div.innerHTML = `
-              <a href="/entry/${slug}.html">
-                <img src="${imageUrl}" alt="Preview">
-              </a>
-              <p><strong>${report.school}</strong><br>
-              ${report.location}<br>
-              <em>${report.issue}</em></p>
-            `;
-            row.appendChild(div);
-          });
-
-          section.appendChild(row);
-          container.appendChild(section);
-        });
-      });
+    window.onload = loadReports;
   </script>
 </body>
 </html>
-
