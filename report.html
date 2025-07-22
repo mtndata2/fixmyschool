@@ -1,67 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit a Report – FixMySchool</title>
+  <meta charset="UTF-8">
+  <title>Report Issue – FixMySchool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Report an Issue</h1>
-  <form id="report-form" enctype="multipart/form-data">
-    <label>School Name:
-      <input type="text" name="school" required />
-    </label>
+  <header>
+    <h1>Submit School Infrastructure Report</h1>
+  </header>
 
-    <label>State:
-      <select name="state" id="stateSelect" required>
-        <option value="">Select a State</option>
-      </select>
-    </label>
+  <main>
+    <form id="reportForm" enctype="multipart/form-data" method="POST" action="https://fixmyschool-api.mtndatasales.workers.dev/">
+      <label for="school">School Name:</label>
+      <input type="text" name="school" id="school" required>
 
-    <label>Local Government:
-      <select name="location" id="lgaSelect" required>
-        <option value="">Select LGA</option>
-      </select>
-    </label>
+      <label for="state">State:</label>
+      <select name="state" id="state" required></select>
 
-    <label>Describe the Issue:
-      <textarea name="issue" required></textarea>
-    </label>
+      <label for="lga">Local Government Area (LGA):</label>
+      <select name="location" id="lga" required></select>
 
-    <label>Upload 5–10 Photos:
-      <input type="file" name="photo" id="photos" accept="image/*" multiple required />
-    </label>
+      <label for="issue">Describe the Issue:</label>
+      <textarea name="issue" id="issue" rows="4" required></textarea>
 
-    <label>Upload 1 Video (optional):
-      <input type="file" name="video" accept="video/*" />
-    </label>
+      <label for="photos">Upload 5 to 10 photos:</label>
+      <input type="file" name="photo0" accept="image/*" required>
+      <input type="file" name="photo1" accept="image/*" required>
+      <input type="file" name="photo2" accept="image/*" required>
+      <input type="file" name="photo3" accept="image/*" required>
+      <input type="file" name="photo4" accept="image/*" required>
+      <input type="file" name="photo5" accept="image/*">
+      <input type="file" name="photo6" accept="image/*">
+      <input type="file" name="photo7" accept="image/*">
+      <input type="file" name="photo8" accept="image/*">
+      <input type="file" name="photo9" accept="image/*">
 
-    <button type="submit">Submit Report</button>
-  </form>
+      <label for="video">Optional Video:</label>
+      <input type="file" name="video" id="video" accept="video/*">
+
+      <button type="submit">Submit Report</button>
+    </form>
+  </main>
 
   <script>
-    const statesAndLgas = {
-      "Abia": ["Aba North", "Aba South", "Isiala Ngwa North", "Isiala Ngwa South", "Umuahia North", "Umuahia South"],
-      "Adamawa": ["Demsa", "Fufore", "Girei", "Gombi", "Guyuk", "Lamurde"],
-      "Lagos": ["Agege", "Alimosho", "Apapa", "Eti-Osa", "Ikeja", "Kosofe", "Surulere"],
-      "Imo": ["Aboh Mbaise", "Ehime Mbano", "Ideato North", "Mbaitoli", "Owerri North", "Owerri West"],
-      // Add more full states and LGAs as needed
+    const stateToLGA = {
+      "Abia": ["Aba North", "Aba South", "Bende", "Ohafia", "Umuahia North", "Umuahia South"],
+      "Lagos": ["Alimosho", "Apapa", "Eti-Osa", "Ikeja", "Kosofe", "Surulere"],
+      "Imo": ["Owerri West", "Owerri North", "Mbaitoli", "Orlu", "Okigwe"],
+      "Ekiti": ["Ado Ekiti", "Ikere", "Ijero", "Irepodun/Ifelodun", "Oye"],
+      "Kano": ["Dala", "Fagge", "Gwale", "Kumbotso", "Tarauni"],
+      // Add more states as needed
     };
 
-    const stateSelect = document.getElementById("stateSelect");
-    const lgaSelect = document.getElementById("lgaSelect");
+    const stateSelect = document.getElementById("state");
+    const lgaSelect = document.getElementById("lga");
 
-    for (const state in statesAndLgas) {
-      const opt = document.createElement("option");
-      opt.value = state;
-      opt.textContent = state;
-      stateSelect.appendChild(opt);
+    for (const state in stateToLGA) {
+      const option = document.createElement("option");
+      option.value = state;
+      option.textContent = state;
+      stateSelect.appendChild(option);
     }
 
     stateSelect.addEventListener("change", () => {
-      const lgas = statesAndLgas[stateSelect.value] || [];
-      lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+      const lgas = stateToLGA[stateSelect.value] || [];
+      lgaSelect.innerHTML = "";
       lgas.forEach(lga => {
         const opt = document.createElement("option");
         opt.value = lga;
@@ -70,43 +75,9 @@
       });
     });
 
-    document.getElementById("report-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const photos = document.getElementById("photos").files;
-
-      if (photos.length < 5 || photos.length > 10) {
-        alert("You must upload between 5 and 10 photos.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("school", form.school.value);
-      formData.append("location", form.location.value);
-      formData.append("issue", form.issue.value);
-
-      Array.from(photos).forEach((file, i) => {
-        formData.append("photo" + i, file);
-      });
-
-      if (form.video.files.length > 0) {
-        formData.append("video", form.video.files[0]);
-      }
-
-      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/", {
-        method: "POST",
-        body: formData
-      });
-
-      if (res.ok) {
-        alert("Report submitted successfully!");
-        form.reset();
-        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-      } else {
-        alert("Failed to submit. Try again.");
-      }
-    });
+    // Trigger initial load for first state
+    stateSelect.selectedIndex = 0;
+    stateSelect.dispatchEvent(new Event("change"));
   </script>
 </body>
 </html>
-
