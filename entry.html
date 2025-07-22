@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FixMySchool – Report Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <div class="top-bar">
+    <div>📸 <strong>FixMySchool</strong></div>
+    <div>
+      <a href="/">Home</a>
+      <a href="/report.html">Submit</a>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <h2 id="school-name">Loading...</h2>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+    <p><strong>Issue:</strong> <span id="issue"></span></p>
+    <p><strong>Date:</strong> <span id="date"></span></p>
+
+    <div id="photo-gallery" class="photo-grid"></div>
+
+    <div id="video-section"></div>
+  </div>
+
+  <script>
+    const params = window.location.pathname.split("/").pop().replace('.html', '') + "/report.json";
+
+    fetch(`https://fixmyschool-api.mtndatasales.workers.dev/reports`)
+      .then(res => res.json())
+      .then(data => {
+        const match = data.reports.find(r => r.id === params);
+        if (!match) {
+          document.body.innerHTML = '<h2>Report not found</h2>';
+          return;
+        }
+
+        document.getElementById('school-name').textContent = match.school;
+        document.getElementById('location').textContent = match.location;
+        document.getElementById('issue').textContent = match.issue;
+        document.getElementById('date').textContent = new Date(match.timestamp).toLocaleString();
+
+        const gallery = document.getElementById('photo-gallery');
+        match.photoUrls.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = "Report photo";
+          gallery.appendChild(img);
+        });
+
+        if (match.videoUrl) {
+          const video = document.createElement('video');
+          video.src = match.videoUrl;
+          video.controls = true;
+          video.width = 400;
+          const container = document.getElementById('video-section');
+          container.innerHTML = "<h3>Video:</h3>";
+          container.appendChild(video);
+        }
+      });
+  </script>
+
+</body>
+</html>
