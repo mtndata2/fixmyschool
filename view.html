@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View Report – FixMySchool</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <h1>Report Details</h1>
+  <div id="report-details"></div>
+
+  <script>
+    async function loadReport() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (!id) {
+        document.getElementById("report-details").textContent = "Invalid report ID.";
+        return;
+      }
+
+      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/reports");
+      const { reports } = await res.json();
+      const report = reports.find(r => r.id === id);
+
+      if (!report) {
+        document.getElementById("report-details").textContent = "Report not found or not approved.";
+        return;
+      }
+
+      const container = document.getElementById("report-details");
+      container.innerHTML = `
+        <h2>${report.school}</h2>
+        <p><strong>Location:</strong> ${report.location}</p>
+        <p><strong>Date:</strong> ${new Date(report.timestamp).toLocaleString()}</p>
+        <p><strong>Issue:</strong><br/>${report.issue}</p>
+
+        <h3>Photos:</h3>
+        <div class="photo-grid">
+          ${report.photoUrls.map(url => `<img src="${url}" width="200" />`).join("")}
+        </div>
+
+        ${report.videoUrl ? `
+        <h3>Video:</h3>
+        <video width="480" controls>
+          <source src="${report.videoUrl}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>` : ""}
+      `;
+    }
+
+    loadReport();
+  </script>
+</body>
+</html>
