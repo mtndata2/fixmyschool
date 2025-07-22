@@ -2,59 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FixMySchool Admin</title>
+  <title>Admin Panel - FixMySchool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
-  <div id="admin-list" class="admin-list"></div>
+  <header>
+    <h1>Admin Panel</h1>
+    <p>Approve or Reject Submitted Reports</p>
+  </header>
+
+  <main id="report-list" class="report-container"></main>
 
   <script>
     async function loadReports() {
-      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/admin");
-      const { reports } = await res.json();
-      const container = document.getElementById("admin-list");
-      container.innerHTML = "";
+      try {
+        const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
+        const data = await res.json();
+        const container = document.getElementById('report-list');
 
-      reports.forEach((r) => {
-        const item = document.createElement("div");
-        item.className = "admin-card";
-        item.innerHTML = `
-          <h3>${r.school}</h3>
-          <p><strong>Location:</strong> ${r.location}</p>
-          <p><strong>Issue:</strong> ${r.issue}</p>
-          <p><strong>Status:</strong> ${r.status}</p>
-          <p><strong>Date:</strong> ${new Date(r.timestamp).toLocaleString()}</p>
-          <div class="thumbs">${r.photoUrls.map(p => `<img src="${p}" width="100" />`).join('')}</div>
-          ${r.videoUrl ? `<video controls width="300"><source src="${r.videoUrl}" type="video/mp4"></video>` : ''}
-          <br />
-          <button onclick="moderate('${r.key}', 'approved')">✅ Approve</button>
-          <button onclick="moderate('${r.key}', 'rejected')">❌ Reject</button>
-          <hr />
-        `;
-        container.appendChild(item);
-      });
-    }
+        if (!data.reports || data.reports.length === 0) {
+          container.innerHTML = "<p>No reports found.</p>";
+          return;
+        }
 
-    async function moderate(key, status) {
-      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/moderate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, status })
-      });
-      const result = await res.json();
-      if (result.success) {
-        alert(`${status.toUpperCase()} ✅`);
-        loadReports();
-      } else {
-        alert("Failed to moderate");
+        for (const report of data.reports) {
+          const card = document.createElement('div');
+          card.className = 'report-card';
+
+          const date = new Date(report.timestamp).toLocaleString();
+
+          card.innerHTML = `
+            <h3>${report.school} - ${report.location}</h3>
+            <p><strong>Issue:</strong> ${report.issue}</p>
+            <p><strong>Date:</strong> ${date}</p>
+            <div class="photo-preview">
+              ${report.photoUrls.map(url => `<img src="${url}" alt="photo" loading="lazy"/>`).join('')}
+            </div>
+            ${report.videoUrl ? `<video controls src="${report.videoUrl}" width="300"></video>` : ""}
+            <div class="actions">
+              <button onclick="moderate('${report.key}', 'approved')">Approve</button>
+              <button onclick="moderate('${report.key}', 'rejected')">Reject</button>
+            </div>
+            <p class="status">Current status: <strong>${report.status || 'pending'}</strong></p>
+          `;
+
+          container.appendChild(card);
+        }
+      } catch (err) {
+        console.error("Error loading reports:", err);
+        document.getElementById('report-list').innerHTML = "<p>Error loading reports.</p>";
       }
     }
 
-    window.onload = loadReports;
+    async function moderate(key, status) {
+      const confirmAction = confirm(`Are you sure you want to mark this as ${status}?`);
+      if (!confirmAction) return;
+
+      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, status })
+      });
+
+      if (res.ok) {
+        alert('Updated successfully');
+        location.reload();
+      } else {
+        alert('Failed to update');
+      }
+    }
+
+    loadReports();
   </script>
 </body>
 </html>
-
-
