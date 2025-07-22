@@ -1,68 +1,100 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FixMySchool – Home</title>
+  <title>FixMySchool – Report Broken Infrastructure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <header>
     <h1>FixMySchool</h1>
+    <p>Highlight and report poor school infrastructure</p>
     <nav>
-      <a href="/report.html">Report an Issue</a>
-      <a href="/about.html">About</a>
-      <a href="/contact.html">Contact</a>
-      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/report.html">Submit a Report</a>
     </nav>
   </header>
 
   <main>
-    <h2>Approved Reports Gallery</h2>
-    <div id="gallery"></div>
+    <section id="gallery">
+      <h2>Recent Approved Reports</h2>
+      <div id="reportContainer">Loading reports...</div>
+    </section>
   </main>
+
+  <footer>
+    <nav>
+      <a href="/about.html">About</a> |
+      <a href="/contact.html">Contact</a> |
+      <a href="/privacy.html">Privacy Policy</a>
+    </nav>
+    <p>&copy; 2025 FixMySchool</p>
+  </footer>
 
   <script>
     async function loadReports() {
-      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/reports");
-      const { reports } = await res.json();
-      const grouped = {};
+      const container = document.getElementById("reportContainer");
+      try {
+        const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/reports");
+        const data = await res.json();
+        const reports = data.reports;
 
-      reports.forEach(report => {
-        const date = new Date(report.timestamp).toLocaleDateString();
-        if (!grouped[date]) grouped[date] = [];
-        grouped[date].push(report);
-      });
+        if (!reports.length) {
+          container.innerHTML = "<p>No approved reports yet.</p>";
+          return;
+        }
 
-      const gallery = document.getElementById("gallery");
-      gallery.innerHTML = "";
+        // Group reports by date
+        const grouped = {};
+        for (const r of reports) {
+          const date = new Date(r.timestamp).toDateString();
+          if (!grouped[date]) grouped[date] = [];
+          grouped[date].push(r);
+        }
 
-      for (const date in grouped) {
-        const section = document.createElement("section");
-        section.innerHTML = `<h3>${date}</h3>`;
-        const scroll = document.createElement("div");
-        scroll.className = "scroll-row";
+        container.innerHTML = "";
 
-        grouped[date].forEach(r => {
-          const card = document.createElement("div");
-          card.className = "report-card";
-          card.innerHTML = `
-            <a href="/view.html?id=${encodeURIComponent(r.id)}">
-              <img src="${r.photoUrls[0]}" width="180" />
-              <p><strong>${r.school}</strong><br/>${r.location}</p>
-            </a>
-          `;
-          scroll.appendChild(card);
-        });
+        for (const [date, entries] of Object.entries(grouped)) {
+          const group = document.createElement("div");
+          group.className = "report-group";
+          const heading = document.createElement("h3");
+          heading.textContent = date;
+          group.appendChild(heading);
 
-        section.appendChild(scroll);
-        gallery.appendChild(section);
+          const scrollArea = document.createElement("div");
+          scrollArea.className = "scroll-row";
+
+          entries.forEach(entry => {
+            const box = document.createElement("div");
+            box.className = "report-box";
+
+            const img = document.createElement("img");
+            img.src = entry.photoUrls?.[0] || "";
+            img.alt = entry.school;
+
+            const info = document.createElement("div");
+            info.innerHTML = `
+              <strong>${entry.school}</strong><br />
+              ${entry.location}<br />
+              <small>${entry.issue}</small>
+            `;
+
+            box.appendChild(img);
+            box.appendChild(info);
+            scrollArea.appendChild(box);
+          });
+
+          group.appendChild(scrollArea);
+          container.appendChild(group);
+        }
+
+      } catch (err) {
+        container.innerHTML = "<p>Error loading reports. Try again later.</p>";
+        console.error(err);
       }
     }
 
-    window.onload = loadReports;
+    document.addEventListener("DOMContentLoaded", loadReports);
   </script>
 </body>
 </html>
