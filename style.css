@@ -1,95 +1,120 @@
 body {
-  font-family: sans-serif;
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
   background: #f7f9fc;
+  color: #222;
 }
 
-img {
-  border-radius: 6px;
-  margin: 10px 0;
+header {
+  background: #004d40;
+  color: white;
+  padding: 1rem;
+  text-align: center;
 }
 
-.report-card, .admin-card {
+header h1 {
+  margin: 0 0 0.5rem;
+}
+
+nav a {
+  color: white;
+  margin: 0 1rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding: 2rem;
+}
+
+form {
+  max-width: 600px;
+  margin: auto;
   background: white;
-  border: 1px solid #ddd;
-  padding: 15px;
+  padding: 2rem;
   border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-button {
-  margin-right: 10px;
-  padding: 5px 10px;
-  border-radius: 5px;
+form label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button {
+  padding: 0.75rem 1.5rem;
+  background: #00796b;
+  color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #eef;
-}
-.top-bar {
-  background: darkgreen;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+form button:hover {
+  background: #004d40;
 }
 
-.top-bar a {
-  color: #fff;
-  text-decoration: none;
-  margin-left: 10px;
-  font-weight: bold;
+section {
+  margin-bottom: 3rem;
 }
 
-.content-wrapper {
-  padding: 20px;
-}
-
-.date-section {
-  margin-bottom: 30px;
-}
-
-.date-heading {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 10px;
-}
-
-.gallery-row {
+.scroll-row {
   display: flex;
   overflow-x: auto;
-  gap: 15px;
-  padding-bottom: 10px;
+  padding-bottom: 1rem;
+  gap: 1rem;
 }
 
-.gallery-card {
-  min-width: 250px;
-  background: #fff;
+.report-card {
+  min-width: 200px;
+  background: white;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  padding: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.gallery-card img {
-  max-width: 100%;
-  border-radius: 6px;
+.report-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.report-card p {
+  margin: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.photo-grid img {
-  width: 100%;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+video {
+  margin-top: 1rem;
+  border-radius: 8px;
+  max-width: 100%;
 }
+
+h1, h2, h3 {
+  color: #004d40;
+}
+
+
