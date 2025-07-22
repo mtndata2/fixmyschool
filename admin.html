@@ -1,56 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FixMySchool – Admin Panel</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-  <h1>FixMySchool Admin Panel</h1>
-  <p>Approve or reject user-submitted reports below.</p>
+<script>
+async function loadReports() {
+  const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/admin");
+  const { reports } = await res.json();
 
-  <section id="admin-list"></section>
+  const container = document.getElementById("admin-list");
+  container.innerHTML = "";
 
-  <script>
-    async function loadReports() {
-      const res = await fetch('https://fixmyschool-api.mtndatasales.workers.dev/admin');
-      const data = await res.json();
-      const list = document.getElementById('admin-list');
-      list.innerHTML = '';
+  reports.forEach((r, index) => {
+    const item = document.createElement("div");
+    item.className = "admin-card";
+    item.innerHTML = `
+      <p><strong>${r.school}</strong> - ${r.location}</p>
+      <p>Issue: ${r.issue}</p>
+      <p>Date: ${new Date(r.timestamp).toLocaleString()}</p>
+      ${r.photoUrl ? `<img src="${r.photoUrl}" width="200"/>` : ""}
+      <br>
+      <button onclick="moderate('${r.key}', 'approved')">✅ Approve</button>
+      <button onclick="moderate('${r.key}', 'rejected')">❌ Reject</button>
+      <hr>
+    `;
+    container.appendChild(item);
+  });
+}
 
-      data.reports.forEach(report => {
-        const key = report.photoUrl?.split('/').slice(-2).join('/').replace('.jpg', '') + '/report.json';
+async function moderate(key, status) {
+  const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/moderate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, status })
+  });
 
-        const div = document.createElement('div');
-        div.className = 'admin-card';
-        div.innerHTML = `
-          <h3>${report.school} – ${report.location}</h3>
-          <p><strong>Issue:</strong> ${report.issue}</p>
-          <p><strong>Date:</strong> ${new Date(report.timestamp).toLocaleString()}</p>
-          ${report.photoUrl ? `<img src="${report.photoUrl}" alt="photo" width="300">` : ''}
-          ${report.videoUrl ? `<p><a href="${report.videoUrl}" target="_blank">View Video</a></p>` : ''}
-          <p>Status: <strong>${report.approved ? '✅ Approved' : '⏳ Pending'}</strong></p>
-          <button onclick="moderate('${key}', 'approve')">✅ Approve</button>
-          <button onclick="moderate('${key}', 'reject')">❌ Reject</button>
-          <hr/>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    async function moderate(key, action) {
-      await fetch('https://fixmyschool-api.mtndatasales.workers.dev/moderate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, action })
-      });
-      alert(`Report ${action}d`);
-      loadReports();
-    }
-
+  const result = await res.json();
+  if (result.success) {
+    alert(`${status.toUpperCase()} ✅`);
     loadReports();
-  </script>
-</body>
-</html>
+  } else {
+    alert("Failed to moderate");
+  }
+}
+
+window.onload = loadReports;
+</script>
+
 
