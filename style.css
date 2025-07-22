@@ -117,4 +117,26 @@ h1, h2, h3 {
   color: #004d40;
 }
 
+.scroll-row {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.report-box {
+  min-width: 250px;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+}
+
+.report-box img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+}
 
