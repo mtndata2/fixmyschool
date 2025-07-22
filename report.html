@@ -2,102 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Submit a Report – FixMySchool</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+  <h1>Report an Issue</h1>
+  <form id="report-form" enctype="multipart/form-data">
+    <label>School Name:
+      <input type="text" name="school" required />
+    </label>
 
-  <div class="top-bar">
-    <div>📸 <strong>FixMySchool</strong></div>
-    <div>
-      <a href="/">Home</a>
-      <a href="/about.html">About</a>
-      <a href="/contact.html">Contact</a>
-    </div>
-  </div>
+    <label>State:
+      <select name="state" id="stateSelect" required>
+        <option value="">Select a State</option>
+      </select>
+    </label>
 
-  <div class="content-wrapper">
-    <h2>Submit a School Infrastructure Report</h2>
-    <p>Please upload <strong>5–10 photos</strong>, an optional video, and describe the problem clearly.</p>
+    <label>Local Government:
+      <select name="location" id="lgaSelect" required>
+        <option value="">Select LGA</option>
+      </select>
+    </label>
 
-    <form id="reportForm" enctype="multipart/form-data">
-      <label>School Name:</label><br>
-      <input type="text" name="school" required><br><br>
+    <label>Describe the Issue:
+      <textarea name="issue" required></textarea>
+    </label>
 
-      <label>State:</label><br>
-      <select id="stateSelect" name="state" required></select><br><br>
+    <label>Upload 5–10 Photos:
+      <input type="file" name="photo" id="photos" accept="image/*" multiple required />
+    </label>
 
-      <label>Local Government Area (LGA):</label><br>
-      <select id="lgaSelect" name="location" required></select><br><br>
+    <label>Upload 1 Video (optional):
+      <input type="file" name="video" accept="video/*" />
+    </label>
 
-      <label>Issue Description:</label><br>
-      <textarea name="issue" rows="5" required></textarea><br><br>
-
-      <label>Upload Photos (5–10):</label><br>
-      <input type="file" name="photos" id="photos" accept="image/*" multiple required><br><br>
-
-      <label>Upload Video (optional):</label><br>
-      <input type="file" name="video" accept="video/*"><br><br>
-
-      <button type="submit">Submit Report</button>
-    </form>
-  </div>
+    <button type="submit">Submit Report</button>
+  </form>
 
   <script>
-    const stateToLGA = {
-      "Abia": ["Aba North", "Aba South", "Umuahia North", "Umuahia South", "Ohafia", "Isiala Ngwa North", "Isiala Ngwa South"],
-      "Adamawa": ["Yola North", "Yola South", "Mubi North", "Mubi South", "Numan", "Gombi", "Demsa"],
-      "Akwa Ibom": ["Uyo", "Ikot Ekpene", "Eket", "Oron", "Abak", "Itu", "Essien Udim"],
-      "Anambra": ["Awka North", "Awka South", "Onitsha North", "Onitsha South", "Nnewi North", "Nnewi South", "Aguata"],
-      "Bauchi": ["Bauchi", "Dass", "Toro", "Bogoro", "Misau", "Katagum"],
-      "Bayelsa": ["Yenagoa", "Brass", "Ekeremor", "Nembe", "Ogbia", "Sagbama"],
-      "Benue": ["Makurdi", "Gboko", "Otukpo", "Guma", "Logo", "Katsina-Ala"],
-      "Borno": ["Maiduguri", "Bama", "Damboa", "Chibok", "Konduga", "Gwoza"],
-      "Cross River": ["Calabar Municipal", "Calabar South", "Ogoja", "Ikom", "Obudu", "Yakurr"],
-      "Delta": ["Oshimili North", "Oshimili South", "Warri South", "Ughelli North", "Sapele", "Isoko South"],
-      "Ebonyi": ["Abakaliki", "Afikpo North", "Afikpo South", "Ikwo", "Ezza North"],
-      "Edo": ["Oredo", "Ikpoba Okha", "Egor", "Esan West", "Auchi", "Uhunmwonde"],
-      "Ekiti": ["Ado Ekiti", "Ikere", "Ijero", "Oye", "Ekiti West"],
-      "Enugu": ["Enugu East", "Enugu North", "Nsukka", "Udi", "Awgu"],
-      "FCT": ["Abuja Municipal", "Gwagwalada", "Kuje", "Bwari", "Abaji", "Kwali"],
-      "Gombe": ["Gombe", "Billiri", "Kaltungo", "Akko", "Dukku"],
-      "Imo": ["Owerri Municipal", "Owerri West", "Owerri North", "Mbaitoli", "Orlu", "Mbaise"],
-      "Jigawa": ["Dutse", "Hadejia", "Gwaram", "Ringim", "Kazaure"],
-      "Kaduna": ["Kaduna North", "Kaduna South", "Zaria", "Sabon Gari", "Kachia"],
-      "Kano": ["Kano Municipal", "Fagge", "Tarauni", "Nassarawa", "Gwale", "Dala"],
-      "Katsina": ["Katsina", "Daura", "Funtua", "Malumfashi"],
-      "Kebbi": ["Birnin Kebbi", "Argungu", "Zuru", "Jega"],
-      "Kogi": ["Lokoja", "Okene", "Kabba/Bunu", "Idah"],
-      "Kwara": ["Ilorin East", "Ilorin West", "Offa", "Oyun"],
-      "Lagos": ["Ikeja", "Alimosho", "Mushin", "Surulere", "Eti-Osa", "Apapa", "Epe", "Ikorodu", "Ifako-Ijaiye"],
-      "Nasarawa": ["Lafia", "Keffi", "Akwanga", "Nasarawa Eggon"],
-      "Niger": ["Minna", "Suleja", "Bida", "Kontagora"],
-      "Ogun": ["Abeokuta North", "Abeokuta South", "Ijebu Ode", "Sango Ota", "Ijebu North"],
-      "Ondo": ["Akure South", "Akure North", "Owo", "Ondo West", "Okitipupa"],
-      "Osun": ["Osogbo", "Ilesa", "Ife Central", "Ife East", "Ede North"],
-      "Oyo": ["Ibadan North", "Ibadan South-West", "Ogbomoso North", "Oyo West", "Oyo East"],
-      "Plateau": ["Jos North", "Jos South", "Barkin Ladi", "Langtang North"],
-      "Rivers": ["Port Harcourt", "Obio/Akpor", "Bonny", "Eleme", "Oyigbo"],
-      "Sokoto": ["Sokoto North", "Sokoto South", "Wamakko", "Tambuwal"],
-      "Taraba": ["Jalingo", "Bali", "Gashaka", "Wukari"],
-      "Yobe": ["Damaturu", "Potiskum", "Nguru", "Geidam"],
-      "Zamfara": ["Gusau", "Kaura Namoda", "Talata Mafara", "Shinkafi"]
+    const statesAndLgas = {
+      "Abia": ["Aba North", "Aba South", "Isiala Ngwa North", "Isiala Ngwa South", "Umuahia North", "Umuahia South"],
+      "Adamawa": ["Demsa", "Fufore", "Girei", "Gombi", "Guyuk", "Lamurde"],
+      "Lagos": ["Agege", "Alimosho", "Apapa", "Eti-Osa", "Ikeja", "Kosofe", "Surulere"],
+      "Imo": ["Aboh Mbaise", "Ehime Mbano", "Ideato North", "Mbaitoli", "Owerri North", "Owerri West"],
+      // Add more full states and LGAs as needed
     };
 
-    const stateSelect = document.getElementById('stateSelect');
-    const lgaSelect = document.getElementById('lgaSelect');
+    const stateSelect = document.getElementById("stateSelect");
+    const lgaSelect = document.getElementById("lgaSelect");
 
-    Object.keys(stateToLGA).forEach(state => {
+    for (const state in statesAndLgas) {
       const opt = document.createElement("option");
       opt.value = state;
       opt.textContent = state;
       stateSelect.appendChild(opt);
-    });
+    }
 
     stateSelect.addEventListener("change", () => {
-      const lgas = stateToLGA[stateSelect.value] || [];
-      lgaSelect.innerHTML = "";
+      const lgas = statesAndLgas[stateSelect.value] || [];
+      lgaSelect.innerHTML = '<option value="">Select LGA</option>';
       lgas.forEach(lga => {
         const opt = document.createElement("option");
         opt.value = lga;
@@ -106,39 +70,43 @@
       });
     });
 
-    // Trigger LGA load on page load
-    stateSelect.selectedIndex = 0;
-    stateSelect.dispatchEvent(new Event("change"));
-
-    document.getElementById('reportForm').addEventListener('submit', async function (e) {
+    document.getElementById("report-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const form = e.target;
-      const photos = document.getElementById('photos').files;
+      const photos = document.getElementById("photos").files;
+
       if (photos.length < 5 || photos.length > 10) {
-        alert("Please upload between 5 and 10 photos.");
+        alert("You must upload between 5 and 10 photos.");
         return;
       }
 
-      const formData = new FormData(form);
-      for (let i = 0; i < photos.length; i++) {
-        formData.append("photo" + i, photos[i]); // photo0, photo1...
+      const formData = new FormData();
+      formData.append("school", form.school.value);
+      formData.append("location", form.location.value);
+      formData.append("issue", form.issue.value);
+
+      Array.from(photos).forEach((file, i) => {
+        formData.append("photo" + i, file);
+      });
+
+      if (form.video.files.length > 0) {
+        formData.append("video", form.video.files[0]);
       }
 
-      const response = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/", {
+      const res = await fetch("https://fixmyschool-api.mtndatasales.workers.dev/", {
         method: "POST",
         body: formData
       });
 
-      const result = await response.json();
-      if (result.status === "success") {
+      if (res.ok) {
         alert("Report submitted successfully!");
-        window.location.href = "/thank-you.html";
+        form.reset();
+        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
       } else {
-        alert("There was an error: " + result.message || "Unable to submit");
+        alert("Failed to submit. Try again.");
       }
     });
   </script>
-
 </body>
 </html>
+
